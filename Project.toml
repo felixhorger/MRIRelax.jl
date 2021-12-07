@@ -1,0 +1,4 @@
+name = "MRIRelax"
+uuid = "56623440-bc92-4c49-bf8c-5461396a11b6"
+authors = ["Felix Horger <felix.horger@kcl.ac.uk>"]
+version = "0.1.0"
