@@ -2,3 +2,7 @@ name = "MRIRelax"
 uuid = "56623440-bc92-4c49-bf8c-5461396a11b6"
 authors = ["Felix Horger <felix.horger@kcl.ac.uk>"]
 version = "0.1.0"
+
+[deps]
+LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
+LsqFit = "2fda8390-95c7-5789-9bda-21331edee243"

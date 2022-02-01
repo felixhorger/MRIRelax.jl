@@ -6,7 +6,7 @@ module MRIRelax
 	export fit_transverse
 
 	using LinearAlgebra
-	using LsqFit
+	import LsqFit
 
 	@inline function longitudinal(t::Real, R1::Real, M::Real)::Real
 		1.0 - (1.0 - M) * exp(-R1 * t)
@@ -38,7 +38,7 @@ module MRIRelax
 
 		NaNs = ntuple(i -> NaN,  Val(6))
 
-		result = curve_fit(
+		result = LsqFit.curve_fit(
 			inversion_recovery_model,
 			Tinv,
 			signal,
@@ -50,7 +50,7 @@ module MRIRelax
 		!result.converged && return NaNs
 
 		# Get parameters
-		R1, Minv, M0 = coef(result)
+		R1, Minv, M0 = LsqFit.coef(result)
 
 		# Compute std-errors
 		ΔR1, ΔMinv, ΔM0 = let
