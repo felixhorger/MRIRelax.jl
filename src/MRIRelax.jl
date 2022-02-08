@@ -2,7 +2,7 @@
 module MRIRelax
 
 	export longitudinal, transverse
-	export fit_inversion_recovery, inversion_recovery_model
+	export fit_inversion_recovery, inversion_recovery_model!
 	export fit_transverse
 
 	using LinearAlgebra
@@ -15,7 +15,7 @@ module MRIRelax
 		exp(-R2 * t)
 	end
 
-	@inline function inversion_recovery_model(
+	@inline function inversion_recovery_model!(
 		signal::AbstractVector{<: Real},
 		t::AbstractVector{<: Real},
 		(R1, Minv, M0)::AbstractVector{<: Real}
@@ -39,7 +39,7 @@ module MRIRelax
 		NaNs = ntuple(i -> NaN,  Val(6))
 
 		result = LsqFit.curve_fit(
-			inversion_recovery_model,
+			(inversion_recovery_model!),
 			Tinv,
 			signal,
 			1.0 ./ Δsignal.^2,
