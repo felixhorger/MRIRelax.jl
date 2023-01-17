@@ -126,17 +126,12 @@ module MRIRelax
 
 		return T2, ΔT2, M0, ΔM0
 	end
-	function linreg( # TODO: outsource
-		X::Matrix{T},
-		y::Vector{T},
-		w::Vector{T}
-	)::Tuple{Vector{T}, Vector{T}} where T <: Union{Float64, ComplexF64}
-		# Make note about upper case variables
+	function linreg(X::AbstractMatrix{<: Number}, y::Vector{<: Number}, w::Vector{<: Number})
 		W = diagm(w.^2)
 		A = X' * W
 		H = A * X
 		if det(H) == 0
-			θ = Vector{T}(undef, size(X, 1))
+			θ = Vector{Float64}(undef, size(X, 1))
 			fill!(θ, NaN)
 			Δθ = θ
 		else
@@ -145,6 +140,5 @@ module MRIRelax
 		end
 		return θ, Δθ
 	end
-
 end
 
