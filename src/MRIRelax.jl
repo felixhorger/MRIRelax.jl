@@ -23,6 +23,58 @@ module MRIRelax
 		@. signal = M0 * abs(longitudinal(t, R1, Minv))
 	end
 
+	@inline function inversion_recovery_model_simple!(
+		signal::AbstractVector{<: Real},
+		t::AbstractVector{<: Real},
+		(R1, M0)::AbstractVector{<: Real}
+	)::Vector{Real}
+		@. signal = M0 * abs(longitudinal(t, R1, -1.0))
+	end
+
+	# TODO: dirty
+	function fit_simple_inversion_recovery(
+		Tinv::AbstractVector{<: Real},
+		signal::AbstractVector{<: Real},
+		Δsignal::AbstractVector{<: Real},
+		T1::Real,
+		M0::Real
+	)
+
+		NaNs = ntuple(i -> NaN,  Val(6))
+
+		result = LsqFit.curve_fit(
+			(inversion_recovery_model_simple!),
+			Tinv,
+			signal,
+			1.0 ./ Δsignal.^2,
+			[1.0 / T1, M0]; # Initial guess
+			autodiff=:forwarddiff,
+			inplace=true
+		)
+		!result.converged && return NaNs
+
+		# Get parameters
+		R1, M0 = LsqFit.coef(result)
+
+		# Compute std-errors
+		ΔR1, ΔM0 = let
+			J = result.jacobian
+			Q, R = qr(J)
+			det(R) == 0 && return NaNs
+			Rinv = inv(R)
+			covar = Rinv * Rinv'
+			var = diag(covar)
+			any(var .< 0.0) && return NaNs
+			sqrt.(var)
+		end
+
+		# Get T1 from R1
+		T1 = 1.0 / R1
+		ΔT1 = T1^2 * ΔR1
+
+		return T1, ΔT1, M0, ΔM0
+	end
+
 	"""
 		TODO: Two pool models?
 
